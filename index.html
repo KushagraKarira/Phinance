@@ -24,8 +24,8 @@
 		</script>
 		<H1>Balance Sheet Dump</H1>
     <form>
-      <input type="text" id="ticker" name="ticker" placeholder="Enter Ticker Symbol:" required>
-      <button type="submit">Submit</button>
+      <input type="text" id="companySymbol" name="companySymbol" placeholder="Enter Ticker Symbol:" required>
+      <button type="button" onclick="getBalanceSheet()">Submit</button>
     </form>
     <table id="balance-sheet">
       <thead>
