@@ -8,7 +8,7 @@ form.addEventListener('submit', async (event) => {
   const ticker = event.target.elements.ticker.value.toUpperCase();
 
   try {
-    const response = await fetch(`https://www.alphavantage.co/query?function=BALANCE_SHEET&symbol=${ticker}&apikey=YOUR_API_KEY`);
+    const response = await fetch(`https://www.alphavantage.co/query?function=BALANCE_SHEET&symbol=${ticker}&apikey=DLQSQO7DUNU4FN2E`);
 
     if (response.status === 200) {
       const data = await response.json();
@@ -33,7 +33,7 @@ form.addEventListener('submit', async (event) => {
       // Hide error message if previously displayed
       errorContainer.style.display = 'none';
     } else {
-      throw new Error('API request failed');
+      throw new Error('API Request failed');
     }
   } catch (error) {
     console.error(error);
