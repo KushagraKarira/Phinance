@@ -2,20 +2,16 @@ const form = document.querySelector('form');
 const tbody = document.querySelector('tbody');
 const errorContainer = document.querySelector('.error-container');
 
+const apiKey = "DLQSQO7DUNU4FN2E"; // replace with your Alpha Vantage API key
+const apiUrl = "https://www.alphavantage.co/query";
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   const ticker = event.target.elements.ticker.value.toUpperCase();
 
   try {
-    const response = await fetch(`https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-balance-sheet?symbol=${ticker}`, {
-      "method": "GET",
-      "headers": {
-        "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
-        "x-rapidapi-key": "0153f2df24msh7f34b10b0f36dc8p1435e0jsncd9de0d2aa61"
-      }
-    });
-
+    const response = await fetch(`${apiUrl}?function=BALANCE_SHEET&symbol=${ticker}.NS&apikey=${apiKey}`);
     if (response.status === 200) {
       const data = await response.json();
 
@@ -23,15 +19,17 @@ form.addEventListener('submit', async (event) => {
       tbody.innerHTML = '';
 
       // Loop through balance sheet items and add rows to table
-      for (const item of data.balanceSheetHistory.balanceSheetStatements[0].balanceSheetStatements) {
-        const row = document.createElement('tr');
-        const itemCell = document.createElement('td');
-        itemCell.textContent = item.shortName;
-        const valueCell = document.createElement('td');
-        valueCell.textContent = item.longFmtValue;
-        row.appendChild(itemCell);
-        row.appendChild(valueCell);
-        tbody.appendChild(row);
+      for (const [item, value] of Object.entries(data.annualReports[0])) {
+        if (item !== 'fiscalDateEnding') {
+          const row = document.createElement('tr');
+          const itemCell = document.createElement('td');
+          itemCell.textContent = item;
+          const valueCell = document.createElement('td');
+          valueCell.textContent = value;
+          row.appendChild(itemCell);
+          row.appendChild(valueCell);
+          tbody.appendChild(row);
+        }
       }
 
       // Hide error message if previously displayed
@@ -41,10 +39,8 @@ form.addEventListener('submit', async (event) => {
     }
   } catch (error) {
     console.error(error);
-
     // Display error message
     errorContainer.textContent = `Error: ${error.message}`;
     errorContainer.style.display = 'block';
   }
 });
-
