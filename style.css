@@ -3,7 +3,7 @@
 @font-face{font-family:"InterVar";font-weight:100 900;font-style:italic;src:url(Inter-Italic.var.woff2) format("woff2-variations"),url(Inter-Italic.var.woff2) format("woff2")}
 body{background-color:#FAFAFA}
 .text,a:active,a:link,a:visited,body,svg{color:#242424}
-table{text-align:left;vertical-align:middle;border-spacing:5px 5px;border:solid #242424;background-color:#E5E5E5;color:#242424}
+table{text-align:left;vertical-align:middle;border-spacing:5px 5px;;background-color:#E5E5E5;color:#242424;border-radius:25px;}
 H1,H2{text-align:center;font-weight:700}
 p{text-align:center}
 .header{top:0;position:fixed;left:-5px;padding:5px;width:100%;text-align:center}
