@@ -15,7 +15,7 @@
 		<link rel="stylesheet" href="style.css" type="text/css">
     <title>List of Indian Companies with IPO in Last Month</title>
   </head>
-  <body>
+			<body>
     <h1>List of Indian Companies with IPO in Last Month</h1>
 
     <table>
@@ -35,29 +35,35 @@
       const lastMonthDate = new Date();
       lastMonthDate.setMonth(currentDate.getMonth() - 1);
 
-      // Format the dates as YYYY-MM-DD for use with the Alpha Vantage API
-      const currentDateStr = currentDate.toISOString().slice(0, 10);
-      const lastMonthDateStr = lastMonthDate.toISOString().slice(0, 10);
+      // Format the dates as YYYYMMDD for use with the NSE API
+      const currentDateStr = currentDate.toISOString().slice(0, 10).replace(/-/g, "");
+      const lastMonthDateStr = lastMonthDate.toISOString().slice(0, 10).replace(/-/g, "");
 
-      // Build the URL for the Alpha Vantage API
-      const apiKey = "DLQSQO7DUNU4FN2E";
-      const url = `https://www.alphavantage.co/query?function=IPO_CALENDAR&country=India&apikey=${apiKey}`;
+      // Build the URL for the NSE API
+      const url = `https://www.nseindia.com/api/ipo/get-ipo-details?index=equity&from_date=${lastMonthDateStr}&to_date=${currentDateStr}`;
 
-      fetch(url)
+      fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Referer": "https://www.nseindia.com/ipo/ipo-list",
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36"
+        }
+      })
         .then(response => response.json())
         .then(data => {
           const ipoList = document.getElementById("ipo-list");
-          const ipos = data.ipoCalendar;
-          ipos.forEach(ipo => {
-            const ipoDate = new Date(ipo.date);
-            if (ipoDate >= lastMonthDate && ipoDate <= currentDate) {
+          data.forEach(entry => {
+            const ipoDate = new Date(entry.ipoDate);
+            if (ipoDate >= lastMonthDate && ipoDate <= currentDate && entry.totalIssueSize !== 0) {
               const row = document.createElement("tr");
               const companyName = document.createElement("td");
-              companyName.textContent = ipo.name;
+              companyName.textContent = entry.issuerName;
               const ipoDateCell = document.createElement("td");
               ipoDateCell.textContent = ipoDate.toLocaleDateString("en-IN");
               const exchange = document.createElement("td");
-              exchange.textContent = ipo.exchange;
+              exchange.textContent = entry.exchangeName;
               row.append(companyName, ipoDateCell, exchange);
               ipoList.appendChild(row);
             }
