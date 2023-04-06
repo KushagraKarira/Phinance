@@ -1,5 +1,7 @@
 const url = "https://openexchangerates.org/api/latest.json?app_id=e2b801d9e8d847c18918fe90710678f4";
 
+let selectedCells = [];
+
 // Function to fetch the latest exchange rates data
 async function fetchExchangeRates() {
   const response = await fetch(url);
@@ -7,14 +9,19 @@ async function fetchExchangeRates() {
   return data;
 }
 
-// Function to update the exchange rate in the selected cell
-async function updateExchangeRate(firstCode, secondCode) {
+// Function to update the exchange rate in the selected cells
+async function updateExchangeRates() {
   const exchangeRates = await fetchExchangeRates();
-  const firstRate = exchangeRates.rates[firstCode];
-  const secondRate = exchangeRates.rates[secondCode];
-  const exchangeRate = secondRate / firstRate;
-  const selectedCell = document.querySelector(".selected");
-  selectedCell.innerHTML = exchangeRate.toFixed(4);
+  const rates = exchangeRates.rates;
+
+  for (let i = 0; i < selectedCells.length - 1; i++) {
+    const firstCode = selectedCells[i].dataset.code;
+    const secondCode = selectedCells[i+1].dataset.code;
+    const firstRate = rates[firstCode];
+    const secondRate = rates[secondCode];
+    const exchangeRate = secondRate / firstRate;
+    selectedCells[i].innerHTML = exchangeRate.toFixed(4);
+  }
 }
 
 // Add a click event listener to all the cells
@@ -25,17 +32,20 @@ cells.forEach((cell) => {
     if (cell.classList.contains("selected")) {
       cell.classList.remove("selected");
       cell.innerHTML = cell.dataset.code;
+      const index = selectedCells.indexOf(cell);
+      selectedCells.splice(index, 1);
+      // If a cell is deselected, update the exchange rates
+      updateExchangeRates();
     } else {
       // Otherwise, select the cell and show the currency code
       cell.classList.add("selected");
       cell.innerHTML = cell.dataset.code;
-      // If two cells are selected, update the exchange rate
-      const selectedCells = document.querySelectorAll(".selected");
-      if (selectedCells.length === 2) {
-        const firstCode = selectedCells[0].dataset.code;
-        const secondCode = selectedCells[1].dataset.code;
-        updateExchangeRate(firstCode, secondCode);
+      selectedCells.push(cell);
+      // If two cells are selected, update the exchange rates
+      if (selectedCells.length > 1) {
+        updateExchangeRates();
       }
     }
   });
 });
+
