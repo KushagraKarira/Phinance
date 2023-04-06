@@ -12,16 +12,40 @@
 		<link rel="apple-touch-icon" href="favicon.svg">
 		<link rel="icon" href="favicon.svg" type="image/svg+xml">
 		<meta name="theme-color" content="#FAFAFA">
-		<link rel="stylesheet" href="style.css" type="text/css">
 </head>
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Currency Exchange Rates</title>
-  <meta charset="utf-8">
-  <style>
-  </style>
-</head>
+		<style>
+			@import "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap";
+body{background-color:#fafafa;font-family:'Inter',sans-serif}
+.text,a:active,a:link,a:visited,body,svg{color:#242424}
+table{background-color:#e5e5e5;border-radius:25px;max-width:100%;width:100%;text-align:center;vertical-align:middle;padding:0;border-spacing:5px 5px;border-collapse:collapse}
+th{border-radius:25px;height:10px;text-align:center;background-color:#99c1f1;vertical-align:middle;padding:0}
+th:hover,th.selected{background-color:#1a5fb4}
+td.selected{background-color:#add8e6}
+th,td{text-align:left;padding:10px;border:1px solid #000}
+.header{top:0;position:fixed;left:-5px;padding:5px;width:100%;text-align:center}
+.footer{bottom:0;position:fixed;left:-5px;padding:5px;width:100%;text-align:center}
+.center{display:block;margin-left:auto;margin-right:auto}
+h1,h2{text-align:center;font-weight:700}
+p{text-align:justify}
+select,button,input,textarea{text-align:center;background-color:#e5e5e5;color:#242424;height:50px;width:100%;border-radius:25px;border:0!important;box-shadow:none;padding:15px 25px;margin:10px 0;box-sizing:border-box}
+::placeholder{text-align:center}
+img{border-radius:25px;max-width:100%}
+mark{background-color:#99c1f1}
+.positive{background-color:#d4edda;color:#155724}
+.negative{background-color:#f8d7da;color:#721c24}
+.zero{background-color:#fff;color:#333}
+.country{font-size:12px;font-weight:400;color:gray}
+
+@media (prefers-color-scheme: dark) {
+body{background-color:#242424}
+.text,a:active,a:link,a:visited,body,svg{color:#fafafa}
+table{background-color:#353535}
+th{background-color:#1a5fb4}
+th:hover,th.selected{background-color:#99c1f1}
+select,button,input,textarea{background-color:#353535;color:#fafafa}
+mark{background-color:#1a mark{background-color:#1a5fb4}
+}"
+		</style>
 <body>
 <table>
   <tr>
