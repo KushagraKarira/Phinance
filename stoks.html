@@ -16,15 +16,10 @@
 </head>
 <body>
 
-	<h1>Indian Stock Prices</h1>
+	<h1>Stock Prices</h1>
 
 	<table id="stock-table">
 		<thead>
-			<tr>
-				<th>Stock</th>
-				<th>Price</th>
-				<th>Change</th>
-			</tr>
 		</thead>
 		<tbody></tbody>
 	</table>
@@ -41,27 +36,32 @@
 
 		// Populate the table with the stock prices
 		function populateTable(data) {
-			const stockTable = $('#stock-table tbody');
-			for (let i = 0; i < 5; i++) {
-				const row = $('<tr>');
-				for (let j = 0; j < 10; j++) {
-					const index = i * 10 + j;
-					const stock = data[index];
-					const change = formatNumber(stock['changesPercentage']) + '%';
-					const price = formatNumber(stock['price']);
-					const cell = $('<td>').text(price).appendTo(row);
-					const changeCell = $('<div>').text(change).appendTo(cell);
-					if (stock['changesPercentage'] > 0) {
-						changeCell.addClass('positive');
-					} else if (stock['changesPercentage'] < 0) {
-						changeCell.addClass('negative');
-					} else {
-						changeCell.addClass('zero');
-					}
-				}
-				stockTable.append(row);
-			}
-		}
+    const stockTable = $('#stock-table tbody');
+    for (let i = 0; i < 5; i++) {
+        const row = $('<tr>');
+        for (let j = 0; j < 10; j++) {
+            const index = i * 10 + j;
+            const stock = data[index];
+            const name = stock['companyName'];
+            const symbol = stock['symbol'];
+            const change = formatNumber(stock['changesPercentage']) + '%';
+            const price = formatNumber(stock['price']);
+            const cell = $('<td>').text(symbol).appendTo(row);
+            $('<div>').text(name).appendTo(cell);
+            const priceCell = $('<div>').text(price).appendTo(cell);
+            const changeCell = $('<div>').text(change).appendTo(cell);
+            if (stock['changesPercentage'] > 0) {
+                changeCell.addClass('positive');
+            } else if (stock['changesPercentage'] < 0) {
+                changeCell.addClass('negative');
+            } else {
+                changeCell.addClass('zero');
+            }
+        }
+        stockTable.append(row);
+    }
+}
+
 
 		// Make an API request to retrieve the stock prices
 		$.get(API_URL, function(data) {
