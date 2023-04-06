@@ -12,66 +12,63 @@
 		<link rel="apple-touch-icon" href="favicon.svg">
 		<link rel="icon" href="favicon.svg" type="image/svg+xml">
 		<meta name="theme-color" content="#FAFAFA">
-		<link rel="stylesheet" href="style.css" type="text/css">"
+		<link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body>
-    <table>
-        <thead>
-            <tr>
-                <th>Price</th>
-                <th>Change</th>
-                <th>Price</th>
-                <th>Change</th>
-                <th>Price</th>
-                <th>Change</th>
-                <th>Price</th>
-                <th>Change</th>
-                <th>Price</th>
-                <th>Change</th>
-            </tr>
-        </thead>
-        <tbody id="stock-data">
-        </tbody>
-    </table>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
-    <script>
-        // Replace YOUR_API_KEY with your actual Alpha Vantage API key
-        const API_KEY = "DLQSQO7DUNU4FN2E";
-        const API_URL = `https://www.alphavantage.co/query?function=BATCH_STOCK_QUOTES&symbols=AAPL,MSFT,AMZN,GOOGL,FB,TSLA,NVDA,PYPL,JPM,JNJ,V,UNH,PG,BAC,XOM,MA,DIS,HD,VZ,CVX,WMT,MRK,KO,PFE,CSCO&apikey=${API_KEY}`;
+	<h1>Indian Stock Prices</h1>
 
-        // Format the number with commas and two decimal places
-        function formatNumber(num) {
-            return num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-        }
+	<table id="stock-table">
+		<thead>
+			<tr>
+				<th>Stock</th>
+				<th>Price</th>
+				<th>Change</th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
 
-        // Populate the table with the latest stock prices
-        axios.get(API_URL)
-            .then(response => {
-                const stockData = response.data['Stock Quotes'];
-                const tbody = document.getElementById("stock-data");
-                stockData.forEach((stock, index) => {
-                    const row = Math.floor(index / 10);
-                    const col = index % 10;
-                    const priceCell = tbody.rows[row].cells[col * 2 + 1];
-                    const changeCell = tbody.rows[row].cells[col * 2 + 2];
-                    const price = parseFloat(stock['2. price']);
-                    const change = parseFloat(stock['9. change']);
-                    priceCell.textContent = formatNumber(price);
-                    changeCell.textContent = formatNumber(change);
-                    if (change > 0) {
-                        priceCell.style.backgroundColor = "green";
-                        changeCell.style.backgroundColor = "green";
-                        changeCell.textContent = "+" + changeCell.textContent;
-                    } else if (change < 0) {
-                        priceCell.style.backgroundColor = "red";
-                        changeCell.style.backgroundColor = "red";
-                    }
-                });
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    </script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+		const API_KEY = '5b38085c4451c128b9b0919a0dffab8f'; // Replace with your actual API key
+		const API_URL = `https://financialmodelingprep.com/api/v3/stock/real-time-price?apikey=${API_KEY}`;
+
+		// Format numbers with commas and round to two decimal places
+		function formatNumber(number) {
+			return Number(number).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		}
+
+		// Populate the table with the stock prices
+		function populateTable(data) {
+			const stockTable = $('#stock-table tbody');
+			for (let i = 0; i < 5; i++) {
+				const row = $('<tr>');
+				for (let j = 0; j < 10; j++) {
+					const index = i * 10 + j;
+					const stock = data[index];
+					const change = formatNumber(stock['changesPercentage']) + '%';
+					const price = formatNumber(stock['price']);
+					const cell = $('<td>').text(price).appendTo(row);
+					const changeCell = $('<div>').text(change).appendTo(cell);
+					if (stock['changesPercentage'] > 0) {
+						changeCell.addClass('positive');
+					} else if (stock['changesPercentage'] < 0) {
+						changeCell.addClass('negative');
+					} else {
+						changeCell.addClass('zero');
+					}
+				}
+				stockTable.append(row);
+			}
+		}
+
+		// Make an API request to retrieve the stock prices
+		$.get(API_URL, function(data) {
+			populateTable(data['stockList']);
+		});
+
+	</script>
+
 </body>
 </html>

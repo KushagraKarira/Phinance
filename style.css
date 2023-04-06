@@ -13,6 +13,10 @@ select,button,input,textarea{text-align:center;background-color:#E5E5E5;color:#2
 ::placeholder{text-align:center}
 img{border-radius:25px;max-width:100%}
 mark{background-color:#99c1f1}
+.positive {background-color: #d4edda; color: #155724;}
+.negative {background-color: #f8d7da; color: #721c24;}
+.zero {background-color: #fff;color: #333;}
+
 @media (prefers-color-scheme: dark) {
 body{background-color:#242424}
 .text,a:active,a:link,a:visited,body,svg{color:#FAFAFA}
