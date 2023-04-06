@@ -16,69 +16,69 @@
 </head>
 <body>
 
-<h1>Stock Prices</h1>
+	<h1>Stock Prices</h1>
 
-<table id="stock-table">
-    <thead>
-    </thead>
-    <tbody></tbody>
-</table>
+	<table id="stock-table">
+		<thead>
+		</thead>
+		<tbody></tbody>
+	</table>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    const API_KEY = '5b38085c4451c128b9b0919a0dffab8f'; // Replace with your actual API key
-    const API_URL = `https://financialmodelingprep.com/api/v3/stock/real-time-price?apikey=${API_KEY}`;
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+		const API_KEY = '5b38085c4451c128b9b0919a0dffab8f';
+		const API_URL = `https://financialmodelingprep.com/api/v3/stock/real-time-price?apikey=${API_KEY}`;
 
-    // Format numbers with commas and round to two decimal places
-    function formatNumber(number) {
-        return Number(number).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
+		// Format numbers with commas and round to two decimal places
+		function formatNumber(number) {
+			return Number(number).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		}
 
-    // Populate the table with the stock prices
-    function populateTable(data) {
-        const stockTable = $('#stock-table tbody');
-        for (let i = 0; i < 10; i++) {
-            const row = $('<tr>');
-            for (let j = 0; j < 5; j++) {
-                const index = j * 10 + i;
-                const stock = data[index];
-                const name = stock['companyName'];
-                const symbol = stock['symbol'];
-                const change = formatNumber(stock['changesPercentage']) + '%';
-                const price = formatNumber(stock['price']);
-                const cell = $('<td>').text(symbol).appendTo(row);
-                $('<div>').text(name).appendTo(cell);
-                const priceCell = $('<div>').text(price).appendTo(cell);
-                const changeCell = $('<div>').text(change).appendTo(cell);
-                if (stock['changesPercentage'] > 0) {
-                    changeCell.addClass('positive');
-                } else if (stock['changesPercentage'] < 0) {
-                    changeCell.addClass('negative');
-                } else {
-                    changeCell.addClass('zero');
-                }
-            }
-            stockTable.append(row);
-        }
-    }
+		// Populate the table with the stock prices
+		function populateTable(data) {
+			const stockTable = $('#stock-table tbody');
+			stockTable.empty();
+			for (let i = 0; i < 15; i++) {
+				const row = $('<tr>');
+				for (let j = 0; j < 4; j++) {
+					const index = i * 4 + j;
+					if (index >= data.length) {
+						break;
+					}
+					const stock = data[index];
+					const name = stock['companyName'];
+					const symbol = stock['symbol'];
+					const change = formatNumber(stock['changesPercentage']) + '%';
+					const price = formatNumber(stock['price']);
+					const cell = $('<td>').text(symbol).appendTo(row);
+					$('<div>').text(name).appendTo(cell);
+					const priceCell = $('<div>').text(price).appendTo(cell);
+					const changeCell = $('<div>').text(change).appendTo(cell);
+					if (stock['changesPercentage'] > 0) {
+						changeCell.addClass('positive');
+					} else if (stock['changesPercentage'] < 0) {
+						changeCell.addClass('negative');
+					} else {
+						changeCell.addClass('zero');
+					}
+				}
+				stockTable.append(row);
+			}
+		}
 
-    // Make an API request to retrieve the stock prices
-    $.get(API_URL, function(data) {
-        populateTable(data['stockList']);
-    });
-
-    function updateTable() {
-        $.getJSON(apiUrl, function(data) {
-            populateTable(data);
-        });
-        setTimeout(updateTable, 5000); // fetch data every 5 seconds
-    }
-
-    $(function() {
-        updateTable();
-    });
-
-</script>
+		// Make an API request to retrieve the stock prices
+		const apiUrl = `https://financialmodelingprep.com/api/v3/stock/real-time-price?apikey=${API_KEY}`;
+		function updateTable() {
+			$.getJSON(apiUrl, function(data) {
+				populateTable(data['stockList']);
+			});
+			setTimeout(updateTable, 5000); // fetch data every 5 seconds
+		}
+		
+		$(function() {
+			updateTable();
+		});
+	</script>
 
 </body>
 </html>
