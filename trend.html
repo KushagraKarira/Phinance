@@ -44,25 +44,32 @@
 </table>
 
 <script>
-    // Replace 'YOUR_API_KEY' with your Alpha Vantage API key
     const apiKey = 'DLQSQO7DUNU4FN2E';
 
-    // Function to fetch stock data for a specific symbol
     async function fetchStockData(symbol) {
-        const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=1min&apikey=${apiKey}`);
-        const data = await response.json();
-        
-        // Extracting the latest close price
-        const latestClose = data['Time Series (1min)'][Object.keys(data['Time Series (1min)'])[0]]['4. close'];
+        try {
+            const response = await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=1min&apikey=${apiKey}`);
+            const data = await response.json();
 
-        return parseFloat(latestClose);
+            if (data['Time Series (1min)']) {
+                const latestClose = data['Time Series (1min)'][Object.keys(data['Time Series (1min)'])[0]]['4. close'];
+                return parseFloat(latestClose);
+            } else {
+                throw new Error('Data format from API is incorrect');
+            }
+        } catch (error) {
+            console.error(`Error fetching data for ${symbol}: ${error.message}`);
+            return null;
+        }
     }
 
-    // Function to update the table dynamically
     async function updateTable() {
         const industries = [
             { name: 'Technology', symbols: ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'FB'] },
             { name: 'Finance', symbols: ['JPM', 'GS', 'BAC', 'C', 'WFC'] },
+            { name: 'Healthcare', symbols: ['JNJ', 'PFE', 'MRK', 'AMGN', 'ABBV'] },
+            { name: 'Energy', symbols: ['XOM', 'CVX', 'RDS.A', 'BP', 'TOT'] },
+            { name: 'Consumer Goods', symbols: ['PG', 'KO', 'PEP', 'MCD', 'UL'] },
             // Add more industries with their stock symbols as needed
         ];
 
@@ -70,31 +77,28 @@
 
         for (const industry of industries) {
             const averageChange = await calculateAverageChange(industry.symbols);
-            const row = `<tr><td>${industry.name}</td><td>${averageChange.toFixed(2)}</td></tr>`;
+            const row = `<tr><td>${industry.name}</td><td>${averageChange ? averageChange.toFixed(2) : 'N/A'}</td></tr>`;
             tableBody.innerHTML += row;
         }
     }
 
-    // Function to calculate the average change for a list of stock symbols
     async function calculateAverageChange(symbols) {
         let totalChange = 0;
 
         for (const symbol of symbols) {
             const currentPrice = await fetchStockData(symbol);
-            // You may need to fetch the previous closing price and calculate the change
-            // For simplicity, assuming previous closing price as 100
-            const previousClose = 100;
-            const change = ((currentPrice - previousClose) / previousClose) * 100;
-            totalChange += change;
+
+            if (currentPrice !== null) {
+                const previousClose = 100; // Assuming previous closing price as 100 for simplicity
+                const change = ((currentPrice - previousClose) / previousClose) * 100;
+                totalChange += change;
+            }
         }
 
-        return totalChange / symbols.length;
+        return symbols.length > 0 ? totalChange / symbols.length : null;
     }
 
-    // Initial update on page load
     updateTable();
-
-    // You may choose to update the table at regular intervals using setInterval or other mechanisms
 </script>
 
 </body>
