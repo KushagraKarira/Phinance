@@ -170,12 +170,6 @@
         // Clear previous QR code
         document.getElementById("qr-code").innerHTML = "";
 
-        document.getElementById("qr-code").innerHTML = "";
-        const qrCodeDiv = document.getElementById("qr-code");
-
-        const darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        const qrColor = darkMode ? "#ffffff" : "#000000";
-
         const qrOptions = {
             text: upiUri,
             width: 250,
@@ -185,7 +179,7 @@
             logo: "", // Remove any unwanted logos
             logoWidth: 0,
             logoHeight: 0,
-            colorLight: "transparent"
+            colorLight: "transparent",
             useSVG: true
         };
 
