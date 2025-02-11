@@ -147,89 +147,83 @@
     </div>
 
     <script>
-        let qrImageUrl = "";
+    let qrImageUrl = "";
 
-        function generateQRCode() {
-            const upiAddress = document.getElementById("upi-address").value.trim();
-            const payeeName = document.getElementById("payee-name").value.trim();
-            const amount = document.getElementById("amount").value.trim();
-            const currency = document.getElementById("currency").value.trim() || "INR";
-            const notes = document.getElementById("notes").value.trim();
+    function generateQRCode() {
+        const upiAddress = document.getElementById("upi-address").value.trim();
+        const payeeName = document.getElementById("payee-name").value.trim();
+        const amount = document.getElementById("amount").value.trim();
+        const currency = document.getElementById("currency").value || "INR";
+        const notes = document.getElementById("notes").value.trim();
 
-            if (!upiAddress) {
-                alert("Please enter a valid UPI Address.");
-                return;
-            }
-
-            let upiUri = `upi://pay?pa=${encodeURIComponent(upiAddress)}`;
-            if (payeeName) upiUri += `&pn=${encodeURIComponent(payeeName)}`;
-            if (amount) upiUri += `&am=${encodeURIComponent(amount)}`;
-            upiUri += `&cu=${encodeURIComponent(currency)}`;
-            if (notes) upiUri += `&tn=${encodeURIComponent(notes)}`;
-
-            document.getElementById("qr-code").innerHTML = "";
-            const qrCodeDiv = document.getElementById("qr-code");
-
-      const darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const qrColor = darkMode ? "#ffffff" : "#000000";
-
-            new QRCode(qrCodeDiv, {
-                text: upiUri,
-                width: 250,
-                height: 250,
-                quietZone: 10,
-                correctLevel: QRCode.CorrectLevel.H,
-                colorLight: "transparent",
-                useSVG: true
-            });
-
-            setTimeout(() => {
-                convertQRToPNG(qrCodeDiv);
-            }, 300);
+        if (!upiAddress) {
+            alert("Please enter a valid UPI Address.");
+            return;
         }
 
-        function convertQRToPNG(qrCodeDiv) {
-            const svgElement = qrCodeDiv.querySelector("svg");
-            if (!svgElement) return alert("Error generating QR.");
+        let upiUri = `upi://pay?pa=${encodeURIComponent(upiAddress)}`;
+        if (payeeName) upiUri += `&pn=${encodeURIComponent(payeeName)}`;
+        if (amount) upiUri += `&am=${encodeURIComponent(amount)}`;
+        upiUri += `&cu=${encodeURIComponent(currency)}`;
+        if (notes) upiUri += `&tn=${encodeURIComponent(notes)}`;
 
-            const serializer = new XMLSerializer();
-            const svgData = serializer.serializeToString(svgElement);
-            const img = new Image();
-            img.src = URL.createObjectURL(new Blob([svgData], { type: "image/svg+xml" }));
+        // Clear previous QR code
+        document.getElementById("qr-code").innerHTML = "";
 
-            img.onload = function () {
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d");
+        const qrOptions = {
+            text: upiUri,
+            width: 250,
+            height: 250,
+            quietZone: 10,
+            correctLevel: QRCode.CorrectLevel.H,
+            logo: "", // Remove any unwanted logos
+            logoWidth: 0,
+            logoHeight: 0,
+        };
 
-                canvas.width = 300;
-                canvas.height = 300;
-                ctx.fillStyle = "white";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 50, 50, 200, 200);
-
-                canvas.toBlob(blob => {
-                    qrImageUrl = URL.createObjectURL(blob);
-                    document.getElementById("share-btn").style.display = "block";
-                }, "image/png");
-            };
+        // Generate QR Code
+        try {
+            new QRCode(document.getElementById("qr-code"), qrOptions);
+        } catch (error) {
+            console.error("QR Code Generation Error:", error);
+            alert("Error generating QR. Please try again.");
+            return;
         }
 
-        async function shareQR() {
-            if (!qrImageUrl) {
-                alert("QR code is not ready yet.");
-                return;
-            }
+        setTimeout(() => {
+            convertQRToPNG();
+        }, 500);
+    }
 
-            try {
-                const response = await fetch(qrImageUrl);
-                const file = new File([await response.blob()], "upi_qr.png", { type: "image/png" });
-
-                await navigator.share({ title: "UPI QR Code", files: [file] });
-            } catch (error) {
-                console.error("Sharing failed:", error);
-            }
+    function convertQRToPNG() {
+        const svgElement = document.getElementById("qr-code").querySelector("canvas");
+        if (!svgElement) {
+            alert("QR code rendering failed.");
+            return;
         }
-    </script>
+
+        qrImageUrl = svgElement.toDataURL("image/png");
+        document.getElementById("share-btn").style.display = "block";
+    }
+
+    async function shareQR() {
+        if (!qrImageUrl) {
+            alert("QR code is not ready yet.");
+            return;
+        }
+
+        try {
+            const response = await fetch(qrImageUrl);
+            const file = new File([await response.blob()], "upi_qr.png", { type: "image/png" });
+
+            await navigator.share({ title: "UPI QR Code", files: [file] });
+        } catch (error) {
+            console.error("Sharing failed:", error);
+            alert("Sharing failed. Please try downloading manually.");
+        }
+    }
+</script>
+
 
 </body>
 </html>
