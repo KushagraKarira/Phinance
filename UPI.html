@@ -170,12 +170,16 @@
             document.getElementById("qr-code").innerHTML = "";
             const qrCodeDiv = document.getElementById("qr-code");
 
+      const darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const qrColor = darkMode ? "#ffffff" : "#000000";
+
             new QRCode(qrCodeDiv, {
                 text: upiUri,
                 width: 250,
                 height: 250,
                 quietZone: 10,
                 correctLevel: QRCode.CorrectLevel.H,
+                colorLight: "transparent",
                 useSVG: true
             });
 
