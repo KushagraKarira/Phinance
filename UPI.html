@@ -73,21 +73,12 @@
         }
 
         .action-btn {
+            display: none;
             margin-top: 10px;
             padding: 10px;
             border-radius: 25px;
             text-align: center;
             cursor: pointer;
-        }
-
-        #download-btn {
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-        }
-
-        #download-btn:hover {
-            background-color: #0056b3;
         }
 
         #share-btn {
@@ -129,7 +120,7 @@
         <label for="upi-address">UPI Address:</label>
         <input type="text" id="upi-address" placeholder="Enter UPI Address" required>
 
-        <label for="payee-name">Payee Name (optional):</label>
+        <label for="payee-name">Payee Name:</label>
         <input type="text" id="payee-name" placeholder="Enter Payee Name">
 
         <label for="amount">Amount (optional):</label>
@@ -152,7 +143,6 @@
         <button onclick="generateQRCode()">Generate QR Code</button>
         <div id="qr-code"></div>
 
-        <a id="download-btn" class="action-btn" download="upi_qr.png">Download QR Code</a>
         <button id="share-btn" class="action-btn" onclick="shareQR()">Share QR Code</button>
     </div>
 
@@ -225,8 +215,6 @@
 
                 canvas.toBlob(blob => {
                     qrImageUrl = URL.createObjectURL(blob);
-                    document.getElementById("download-btn").href = qrImageUrl;
-                    document.getElementById("download-btn").style.display = "block";
                     document.getElementById("share-btn").style.display = "block";
                 }, "image/png");
             };
