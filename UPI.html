@@ -1,7 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    </head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPI QR Code Generator</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="favicon.svg">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <style>
+       /* (Your CSS styles from previous example go here) */
+       @import "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap";
+        body {
+            background-color: #fafafa;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 400px;
+            padding: 20px;
+            background-color: #e5e5e5; /* Match your table background */
+            border-radius: 25px; /* Match your table border-radius */
+            box-shadow: none; /* Remove default shadow */
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 700;
+        }
+
+        label {
+            display: block; /* Make labels stack on top */
+            margin-bottom: 5px;
+            color: #242424; /* Match your text color */
+        }
+
+        input {
+            width: calc(100% - 30px); /* Account for padding */
+            height: 50px;
+            border-radius: 25px;
+            border: 0 !important;
+            box-shadow: none;
+            padding: 15px 25px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            background-color: #e5e5e5; /* Match your input background */
+            color: #242424; /* Match your text color */
+        }
+        button{
+          text-align: center;
+          background-color:#e5e5e5;
+          color:#242424;
+          height:50px;
+          width:100%;
+          border-radius:25px;
+          border:0!important;
+          box-shadow:none;
+          padding:15px 25px;
+          margin:10px 0;
+          box-sizing:border-box
+        }
+
+        #qr-code {
+            margin-top: 20px;
+            text-align: center; /* Center the QR code */
+        }
+
+        /* Dark mode styles (match your existing dark mode) */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #242424;
+            }
+
+            .container {
+                background-color: #353535;
+                color: #fafafa;
+            }
+            input,button{
+              background-color:#353535;
+              color:#fafafa
+            }
+            label{
+              color:#fafafa
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+</head>
+
 <body>
     <div class="container">
         <h1>UPI QR Code Generator</h1>
@@ -31,36 +123,43 @@
             const upiAddress = document.getElementById("upi-address").value;
             const payeeName = document.getElementById("payee-name").value;
             const amount = document.getElementById("amount").value;
-            const currency = document.getElementById("currency").value;
+            const currency = document.getElementById("currency").value || "INR"; // Default to INR
             const notes = document.getElementById("notes").value;
 
-            let upiUri = `upi://pay?pa=${encodeURIComponent(upiAddress)}`; // Encode UPI address
+            let upiUri = `upi://pay?pa=${encodeURIComponent(upiAddress)}`;
 
             if (payeeName) {
-                upiUri += `&pn=${encodeURIComponent(payeeName)}`; // Encode payee name
+                upiUri += `&pn=${encodeURIComponent(payeeName)}`;
             }
 
             if (amount) {
                 upiUri += `&am=${amount}`;
             }
 
-            if (currency) {
-                upiUri += `&cu=${currency}`;
-            } else {
-                upiUri += `&cu=INR`; //Default Currency
-            }
+            upiUri += `&cu=${currency}`; // Currency is always included
 
             if (notes) {
-                upiUri += `&tn=${encodeURIComponent(notes)}`; // Encode notes
+                upiUri += `&tn=${encodeURIComponent(notes)}`;
             }
 
-            const qrcode = new QRCode(document.getElementById("qr-code"), {
-                text: upiUri,
-                width: 200,
-                height: 200,
-            });
+            const qrCodeDiv = document.getElementById("qr-code");
+            qrCodeDiv.innerHTML = ""; // Clear previous QR code
+
+            try {
+                const qrcode = new QRCode(qrCodeDiv, {
+                    text: upiUri,
+                    width: 200,
+                    height: 200,
+                });
+            } catch (error) {
+                console.error("Error generating QR code:", error);
+                qrCodeDiv.innerHTML = "<p>Error generating QR code. Please check the input values.</p>";
+            }
+
+
         }
     </script>
 
 </body>
+
 </html>
