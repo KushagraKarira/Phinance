@@ -21,6 +21,15 @@
             margin: 0;
         }
 
+      #qr-code-svg { /* Style for the displayed SVG QR code */
+            width: 250px;
+            height: 250px;
+        }
+
+        #qr-code-png { /* Hidden container for the PNG QR code */
+            display: none; /* Hide the PNG container */
+        }
+
         .container {
             width: 90%;
             max-width: 400px;
@@ -73,7 +82,6 @@
         }
 
         .action-btn {
-            display: none;
             margin-top: 10px;
             padding: 10px;
             border-radius: 25px;
@@ -120,7 +128,7 @@
         <label for="upi-address">UPI Address:</label>
         <input type="text" id="upi-address" placeholder="Enter UPI Address" required>
 
-        <label for="payee-name">Payee Name:</label>
+        <label for="payee-name">Payee Name (optional):</label>
         <input type="text" id="payee-name" placeholder="Enter Payee Name">
 
         <label for="amount">Amount (optional):</label>
@@ -193,52 +201,81 @@
             }, 500);
         }
 
-        function convertQRToPNG(qrCodeDiv) {
-            const svgElement = qrCodeDiv.querySelector("svg");
-            if (!svgElement) return;
+       function convertQRToPNG(qrCodeDiv) {
+    const svgElement = qrCodeDiv.querySelector("svg");
+    if (!svgElement) {
+        console.error("SVG element not found!");
+        return;
+    }
 
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            const serializer = new XMLSerializer();
-            const svgData = serializer.serializeToString(svgElement);
-            const img = new Image();
+    const serializer = new XMLSerializer();
+    const svgData = serializer.serializeToString(svgElement);
+    const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(svgBlob);
 
-            const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-            const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    img.crossOrigin = "anonymous"; // Prevent CORS issues
+    img.src = url;
 
-            img.onload = function () {
-                canvas.width = 300;
-                canvas.height = 300;
-                ctx.fillStyle = "transparent";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 50, 50, 200, 200);
+    img.onload = function () {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
 
-                canvas.toBlob(blob => {
-                    qrImageUrl = URL.createObjectURL(blob);
-                    document.getElementById("share-btn").style.display = "block";
-                }, "image/png");
-            };
+        canvas.width = 300;
+        canvas.height = 300;
 
-            img.src = url;
-        }
+        // Draw white background (optional)
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        function shareQR() {
-            if (!navigator.share) {
-                alert("Sharing not supported on this browser.");
+        // Draw the QR image
+        ctx.drawImage(img, 50, 50, 200, 200);
+
+        // Convert to PNG
+        canvas.toBlob(blob => {
+            if (!blob) {
+                console.error("Failed to create blob!");
                 return;
             }
+            qrImageUrl = URL.createObjectURL(blob);
+            document.getElementById("share-btn").style.display = "block";
 
-            fetch(qrImageUrl)
-                .then(res => res.blob())
-                .then(blob => {
-                    const file = new File([blob], "upi_qr.png", { type: "image/png" });
+            // Free memory
+            URL.revokeObjectURL(url);
+        }, "image/png");
+    };
 
-                    navigator.share({
-                        title: "UPI QR Code",
-                        files: [file]
-                    }).catch(err => console.log("Error sharing:", err));
-                });
-        }
+    img.onerror = function () {
+        console.error("Error loading QR image.");
+        URL.revokeObjectURL(url);
+    };
+}
+
+
+        function shareQR() {
+    if (!qrImageUrl) {
+        alert("QR code image is not ready yet. Please try again.");
+        return;
+    }
+
+    if (!navigator.canShare || !navigator.share) {
+        alert("Sharing is not supported on this device.");
+        return;
+    }
+
+    fetch(qrImageUrl)
+        .then(res => res.blob())
+        .then(blob => {
+            const file = new File([blob], "upi_qr.png", { type: "image/png" });
+
+            navigator.share({
+                title: "UPI QR Code",
+                files: [file]
+            }).catch(err => console.log("Error sharing:", err));
+        })
+        .catch(err => console.error("Failed to fetch QR image:", err));
+}
+
     </script>
 
 </body>
