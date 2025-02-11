@@ -41,7 +41,7 @@
             color: #242424;
         }
 
-        input, button {
+        input, button, select {
             width: 100%;
             height: 50px;
             border-radius: 25px;
@@ -52,7 +52,7 @@
             font-size: 16px;
         }
 
-        input {
+        input, select {
             background-color: #e5e5e5;
             color: #242424;
         }
@@ -72,18 +72,32 @@
             text-align: center;
         }
 
-        #download-btn {
+        .action-btn {
             display: none;
             margin-top: 10px;
+            padding: 10px;
+            border-radius: 25px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        #download-btn {
             background-color: #007bff;
             color: white;
-            padding: 10px;
             text-decoration: none;
-            border-radius: 25px;
         }
 
         #download-btn:hover {
             background-color: #0056b3;
+        }
+
+        #share-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        #share-btn:hover {
+            background-color: #1d9235;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -96,7 +110,7 @@
                 color: #fafafa;
             }
 
-            input {
+            input, select {
                 background-color: #353535;
                 color: #fafafa;
             }
@@ -116,14 +130,22 @@
         <label for="upi-address">UPI Address:</label>
         <input type="text" id="upi-address" placeholder="Enter UPI Address" required>
 
-        <label for="payee-name">Payee Name (optional):</label>
+        <label for="payee-name">Payee Name:</label>
         <input type="text" id="payee-name" placeholder="Enter Payee Name">
 
         <label for="amount">Amount (optional):</label>
         <input type="number" id="amount" placeholder="Enter Amount">
 
-        <label for="currency">Currency (optional):</label>
-        <input type="text" id="currency" placeholder="Enter Currency Code (e.g., INR)">
+        <label for="currency">Currency:</label>
+        <select id="currency">
+            <option value="INR">India: Indian Rupee (INR)</option>
+            <option value="BTN">Bhutan: Bhutanese Ngultrum (BTN)</option>
+            <option value="MUR">Mauritius: Mauritian Rupee (MUR)</option>
+            <option value="NPR">Nepal: Nepalese Rupee (NPR)</option>
+            <option value="SGD">Singapore: Singapore Dollar (SGD)</option>
+            <option value="LKR">Sri Lanka: Sri Lankan Rupee (LKR)</option>
+            <option value="AED">UAE: United Arab Emirates Dirham (AED)</option>
+        </select>
 
         <label for="notes">Notes (optional):</label>
         <input type="text" id="notes" placeholder="Enter Notes">
@@ -131,10 +153,13 @@
         <button onclick="generateQRCode()">Generate QR Code</button>
         <div id="qr-code"></div>
 
-        <a id="download-btn" download="upi_qr.png">Download QR Code</a>
+        <a id="download-btn" class="action-btn" download="upi_qr.png">Download QR Code</a>
+        <button id="share-btn" class="action-btn" onclick="shareQR()">Share QR Code</button>
     </div>
 
     <script>
+        let qrImageUrl = "";
+
         function generateQRCode() {
             const upiAddress = document.getElementById("upi-address").value.trim();
             const payeeName = document.getElementById("payee-name").value.trim();
@@ -200,26 +225,33 @@
                 ctx.drawImage(img, 50, 50, 200, 200);
 
                 canvas.toBlob(blob => {
-                    const pngUrl = URL.createObjectURL(blob);
-                    const downloadBtn = document.getElementById("download-btn");
-                    downloadBtn.href = pngUrl;
-                    downloadBtn.style.display = "block";
+                    qrImageUrl = URL.createObjectURL(blob);
+                    document.getElementById("download-btn").href = qrImageUrl;
+                    document.getElementById("download-btn").style.display = "block";
+                    document.getElementById("share-btn").style.display = "block";
                 }, "image/png");
             };
 
             img.src = url;
         }
 
-        document.querySelectorAll("input").forEach(input => {
-            input.addEventListener("input", () => {
-                document.getElementById("qr-code").innerHTML = "";
-                document.getElementById("download-btn").style.display = "none";
-            });
-        });
+        function shareQR() {
+            if (!navigator.share) {
+                alert("Sharing not supported on this browser.");
+                return;
+            }
 
-        window.onload = function () {
-            document.getElementById("upi-address").focus();
-        };
+            fetch(qrImageUrl)
+                .then(res => res.blob())
+                .then(blob => {
+                    const file = new File([blob], "upi_qr.png", { type: "image/png" });
+
+                    navigator.share({
+                        title: "UPI QR Code",
+                        files: [file]
+                    }).catch(err => console.log("Error sharing:", err));
+                });
+        }
     </script>
 
 </body>
