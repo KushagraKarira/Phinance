@@ -119,37 +119,48 @@
 
     <script>
         function generateQRCode() {
+            // Get input values and trim them
             const upiAddress = document.getElementById("upi-address").value.trim();
             const payeeName = document.getElementById("payee-name").value.trim();
             const amount = document.getElementById("amount").value.trim();
             const currency = document.getElementById("currency").value.trim() || "INR"; // Default to INR
             const notes = document.getElementById("notes").value.trim();
 
+            // Basic validation for UPI Address
             if (!upiAddress) {
                 alert("Please enter a valid UPI Address.");
                 return;
             }
 
-            // Constructing the UPI URI based on the format: upi://pay?pa=&pn=&am=&cu=&tn=
+            // Constructing the UPI URI
             let upiUri = `upi://pay?pa=${encodeURIComponent(upiAddress)}`;
 
+            // Add payee name if present
             if (payeeName) {
                 upiUri += `&pn=${encodeURIComponent(payeeName)}`;
             }
 
+            // Add amount if present
             if (amount) {
-                upiUri += `&am=${amount}`;
+                upiUri += `&am=${encodeURIComponent(amount)}`;
             }
 
-            upiUri += `&cu=${currency}`; // Currency is always included
+            // Always include currency code
+            upiUri += `&cu=${encodeURIComponent(currency)}`;
 
+            // Add transaction note if present
             if (notes) {
                 upiUri += `&tn=${encodeURIComponent(notes)}`;
             }
 
-            const qrCodeDiv = document.getElementById("qr-code");
-            qrCodeDiv.innerHTML = ""; // Clear previous QR code
+            // Debugging output
+            console.log("Generated UPI URI:", upiUri);
 
+            // Clear previous QR code
+            const qrCodeDiv = document.getElementById("qr-code");
+            qrCodeDiv.innerHTML = "";
+
+            // Try generating QR code
             try {
                 const qrcode = new QRCode(qrCodeDiv, {
                     text: upiUri,
@@ -162,6 +173,7 @@
             }
         }
     </script>
+
 </body>
 
 </html>
