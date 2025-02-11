@@ -72,13 +72,13 @@
             text-align: center;
         }
 
-        #share-btn {
+        #download-btn {
             display: none;
             margin-top: 10px;
             background-color: #007bff;
         }
 
-        #share-btn:hover {
+        #download-btn:hover {
             background-color: #0056b3;
         }
 
@@ -127,7 +127,7 @@
         <button onclick="generateQRCode()">Generate QR Code</button>
         <div id="qr-code"></div>
 
-        <button id="share-btn">Share QR Code</button>
+        <a id="download-btn" download="upi_qr.png">Download QR Code</a>
     </div>
 
     <script>
@@ -154,12 +154,10 @@
             const qrCodeDiv = document.getElementById("qr-code");
             qrCodeDiv.innerHTML = "";
 
-            // Detect dark mode
             const darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
             const qrColor = darkMode ? "#ffffff" : "#000000";
 
-            // Generate QR Code with vector (SVG)
-            new QRCode(qrCodeDiv, {
+            const qrOptions = {
                 text: upiUri,
                 width: 200,
                 height: 200,
@@ -168,58 +166,53 @@
                 colorLight: "transparent",
                 correctLevel: QRCode.CorrectLevel.H,
                 useSVG: true
-            });
+            };
+
+            new QRCode(qrCodeDiv, qrOptions);
 
             setTimeout(() => {
-                const svgElement = qrCodeDiv.querySelector("svg");
-                if (svgElement) {
-                    const canvas = document.createElement("canvas");
-                    const ctx = canvas.getContext("2d");
-                    const serializer = new XMLSerializer();
-                    const svgData = serializer.serializeToString(svgElement);
-                    const img = new Image();
-                    
-                    const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-                    const url = URL.createObjectURL(svgBlob);
-                    
-                    img.onload = function () {
-                        canvas.width = 300;
-                        canvas.height = 300;
-                        ctx.fillStyle = "transparent";
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        ctx.drawImage(img, 50, 50, 200, 200);
-                        
-                        canvas.toBlob(blob => {
-                            const pngUrl = URL.createObjectURL(blob);
-                            document.getElementById("share-btn").style.display = "block";
-                            document.getElementById("share-btn").onclick = () => shareQRCode(blob);
-                        }, "image/png");
-                    };
-
-                    img.src = url;
-                }
+                convertQRToPNG(qrCodeDiv);
             }, 500);
         }
 
-        function shareQRCode(blob) {
-            if (navigator.share) {
-                const file = new File([blob], "upi_qr.png", { type: "image/png" });
-                navigator.share({ files: [file], title: "UPI QR Code", text: "Scan this QR Code to pay." })
-                    .catch(console.error);
-            } else {
-                alert("Sharing is not supported on this device.");
-            }
+        function convertQRToPNG(qrCodeDiv) {
+            const svgElement = qrCodeDiv.querySelector("svg");
+            if (!svgElement) return;
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const serializer = new XMLSerializer();
+            const svgData = serializer.serializeToString(svgElement);
+            const img = new Image();
+
+            const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(svgBlob);
+
+            img.onload = function () {
+                canvas.width = 300;
+                canvas.height = 300;
+                ctx.fillStyle = "transparent";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 50, 50, 200, 200);
+
+                canvas.toBlob(blob => {
+                    const pngUrl = URL.createObjectURL(blob);
+                    const downloadBtn = document.getElementById("download-btn");
+                    downloadBtn.href = pngUrl;
+                    downloadBtn.style.display = "block";
+                }, "image/png");
+            };
+
+            img.src = url;
         }
 
-        // Auto-clear QR on input change
         document.querySelectorAll("input").forEach(input => {
             input.addEventListener("input", () => {
                 document.getElementById("qr-code").innerHTML = "";
-                document.getElementById("share-btn").style.display = "none";
+                document.getElementById("download-btn").style.display = "none";
             });
         });
 
-        // Auto-focus on first input field
         window.onload = function () {
             document.getElementById("upi-address").focus();
         };
